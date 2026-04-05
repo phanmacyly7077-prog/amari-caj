@@ -1,39 +1,68 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>調剤用・余り計算機</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <style>
-    body { font-family: sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .card { background: white; padding: 25px; border-radius: 15px; shadow: 0 4px 10px rgba(0,0,0,0.1); width: 280px; }
-    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 18px; box-sizing: border-box; }
-    button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; }
-    .res { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; text-align: center; font-size: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>調剤計算機HONMA</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { font-size: 1.2rem; color: #333; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #ff69b4; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; font-size: 1.2rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: #fafafa; }
+        button { width: 100%; padding: 15px; background: #ff69b4; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; background: #fff0f6; display: none; }
+        .res-line { font-size: 1.4rem; font-weight: bold; color: #d01060; text-align: center; }
+        .res-sub { font-size: 0.9rem; color: #666; text-align: center; margin-top: 5px; }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h2 style="text-align:center; margin-top:0;">余り計算機</h2>
-    <input type="number" id="a" placeholder="割られる数 (全量など)" inputmode="numeric">
-    <input type="number" id="b" placeholder="割る数 (ヒート枚数など)" inputmode="numeric">
-    <button onclick="calc()">計算</button>
-    <div id="out" class="res">数字を入力してください</div>
-  </div>
-  <script>
-    function calc() {
-      const a = parseInt(document.getElementById('a').value);
-      const b = parseInt(document.getElementById('b').value);
-      const out = document.getElementById('out');
-      if (isNaN(a) || isNaN(b) || b === 0) { out.innerText = "正しく入力してください"; return; }
-      out.innerHTML = `商: <strong>${Math.floor(a/b)}</strong><br>余り: <strong style="color:red;">${a%b}</strong>`;
+
+<div class="card">
+    <h1>🌸 調剤計算機HONMA</h1>
+    
+    <div class="input-group">
+        <label>合計の数（包・錠）</label>
+        <input type="number" id="total" placeholder="例: 70" inputmode="numeric">
+    </div>
+
+    <div class="input-group">
+        <label>1シートあたりの数</label>
+        <input type="number" id="perSheet" value="10" inputmode="numeric">
+    </div>
+
+    <button onclick="calculate()">計算する</button>
+
+    <div id="result">
+        <div class="res-line" id="mainResult"></div>
+        <div class="res-sub" id="subResult"></div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const total = parseInt(document.getElementById('total').value);
+        const perSheet = parseInt(document.getElementById('perSheet').value);
+        const resDiv = document.getElementById('result');
+
+        if (isNaN(total) || isNaN(perSheet) || perSheet <= 0) {
+            alert("数値を入力してください");
+            return;
+        }
+
+        const sheets = Math.floor(total / perSheet);
+        const remainder = total % perSheet;
+
+        document.getElementById('mainResult').innerText = sheets + " シート と " + remainder + " 包(錠)";
+        document.getElementById('subResult').innerText = "（合計 " + total + " / 1枚 " + perSheet + "）";
+        resDiv.style.display = 'block';
     }
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js');
     }
-  </script>
+</script>
 </body>
 </html>
